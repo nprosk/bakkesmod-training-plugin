@@ -17,6 +17,8 @@ class TrainingPoints: public BakkesMod::Plugin::BakkesModPlugin/*, public Bakkes
 	virtual void onLoad();
 	virtual void onUnload();
 
+	void ballOnTop();
+
 	// Inherited via PluginSettingsWindow
 	/*
 	void RenderSettings() override;

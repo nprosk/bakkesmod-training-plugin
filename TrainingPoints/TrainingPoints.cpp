@@ -2,14 +2,20 @@
 #include "TrainingPoints.h"
 
 
-BAKKESMOD_PLUGIN(TrainingPoints, "bakkesmod plugin that will give the user points for doing training, those points can be used to play ranked games", plugin_version, PLUGINTYPE_FREEPLAY)
+BAKKESMOD_PLUGIN(TrainingPoints, "TrainingPoints", plugin_version, PLUGINTYPE_FREEPLAY)
 
 std::shared_ptr<CVarManagerWrapper> _globalCvarManager;
 
 void TrainingPoints::onLoad()
 {
 	_globalCvarManager = cvarManager;
-	//cvarManager->log("Plugin loaded!");
+	cvarManager->log("Plugin loaded!");
+
+	cvarManager->registerNotifier("CoolerBallOnTop", [this](std::vector<std::string> args) {
+		ballOnTop();
+		}, "", PERMISSION_ALL);
+
+	cvarManager->registerCvar("point_rate", "1", "How many points per time interval", true, true, 0);
 
 	//cvarManager->registerNotifier("my_aweseome_notifier", [&](std::vector<std::string> args) {
 	//	cvarManager->log("Hello notifier!");
@@ -45,4 +51,23 @@ void TrainingPoints::onLoad()
 
 void TrainingPoints::onUnload()
 {
+	cvarManager->log("I was too cool for this world B'(");
+}
+
+void TrainingPoints::ballOnTop() {
+	if (!gameWrapper->IsInFreeplay()) { return; }
+	ServerWrapper server = gameWrapper->GetCurrentGameState();
+	if (!server) { return; }
+
+	BallWrapper ball = server.GetBall();
+	if (!ball) { return; }
+	CarWrapper car = gameWrapper->GetLocalCar();
+	if (!car) { return; }
+
+	Vector carVelocity = car.GetVelocity();
+	ball.SetVelocity(carVelocity);
+
+	Vector carLocation = car.GetLocation();
+	float ballRadius = ball.GetRadius();
+	ball.SetLocation(carLocation + Vector{ 0, 0, ballRadius * 2 });
 }
