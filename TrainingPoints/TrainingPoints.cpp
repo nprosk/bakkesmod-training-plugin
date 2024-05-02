@@ -16,6 +16,8 @@ void TrainingPoints::onLoad()
 		}, "", PERMISSION_ALL);
 
 	cvarManager->registerCvar("point_rate", "1", "How many points per time interval", true, true, 0);
+	cvarManager->registerCvar("points", "0", "How many points you have", true, true, 0);
+	cvarManager->registerCvar("mod_enabled", "1", "Whether or not the mod is enabled", true, true, 0, true, 1);
 
 	//cvarManager->registerNotifier("my_aweseome_notifier", [&](std::vector<std::string> args) {
 	//	cvarManager->log("Hello notifier!");

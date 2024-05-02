@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "TrainingPoints.h"
 
-/* Plugin Settings Window code here
+// Plugin Settings Window code here
 std::string TrainingPoints::GetPluginName() {
 	return "TrainingPoints";
 }
@@ -15,8 +15,19 @@ void TrainingPoints::SetImGuiContext(uintptr_t ctx) {
 //  f2 -> plugins -> TrainingPoints
 void TrainingPoints::RenderSettings() {
 	ImGui::TextUnformatted("TrainingPoints plugin settings");
+
+	CVarWrapper rateCvar = cvarManager->getCvar("point_rate");
+	if (!rateCvar) { return; }
+	float rate = rateCvar.getFloatValue();
+	if (ImGui::SliderFloat("Distance", &rate, 0.0, 40.0)) {
+		rateCvar.setValue(rate);
+	}
+	if (ImGui::IsItemHovered()) {
+		std::string hoverText = "rate is " + std::to_string(rate);
+		ImGui::SetTooltip(hoverText.c_str());
+	}
 }
-*/
+
 
 /*
 // Do ImGui rendering here
