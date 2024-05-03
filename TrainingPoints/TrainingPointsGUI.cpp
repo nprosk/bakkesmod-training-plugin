@@ -11,11 +11,13 @@ std::string TrainingPoints::GetPluginName() {
 //  f2 -> plugins -> TrainingPoints
 void TrainingPoints::RenderSettings() {
 	ImGui::TextUnformatted("TrainingPoints plugin settings");
+	CVarWrapper pointsCvar = cvarManager->getCvar("points");
+	ImGui::TextUnformatted(("Points: " + pointsCvar.getStringValue()).c_str());
 
 	CVarWrapper rateCvar = cvarManager->getCvar("point_rate");
 	if (!rateCvar) { return; }
-	float rate = rateCvar.getFloatValue();
-	if (ImGui::SliderFloat("Distance", &rate, 0.0, 40.0)) {
+	int rate = rateCvar.getIntValue();
+	if (ImGui::SliderInt("Rate", &rate, 0.0, 40.0)) {
 		rateCvar.setValue(rate);
 	}
 	if (ImGui::IsItemHovered()) {
@@ -23,14 +25,82 @@ void TrainingPoints::RenderSettings() {
 		ImGui::SetTooltip(hoverText.c_str());
 	}
 
+
+	float mins_per_ranked_game = (ranked_game_cost / (rateCvar.getFloatValue() * 60.0));
+	std::string time_str = "It takes " + std::to_string(mins_per_ranked_game) + " minutes to get enough points to queue a ranked game";
+	ImGui::TextUnformatted(time_str.c_str());
+
 	CVarWrapper enabledCvar = cvarManager->getCvar("points_window_enabled");
 	bool check = enabledCvar.getBoolValue();
-	if (ImGui::Checkbox("checkbox", &check)) {
+	if (ImGui::Checkbox("Enable window that shows points", &check)) {
 		enabledCvar.setValue(check);
 	}
 }
 
+// Don't call this yourself, BM will call this function with a pointer to the current ImGui context
+void TrainingPoints::SetImGuiContext(uintptr_t ctx)
+{
+	ImGui::SetCurrentContext(reinterpret_cast<ImGuiContext*>(ctx));
+}
 
+// in a .cpp file 
+void TrainingPoints::Render(CanvasWrapper canvas) {
+	CVarWrapper enabledCvar = cvarManager->getCvar("points_window_enabled");
+	if (!enabledCvar.getBoolValue()) {
+		return;
+	}
+
+	canvas_size = gameWrapper->GetScreenSize();
+
+	BlackBackground(&canvas);
+	TotalPointsText(&canvas);
+}
+
+void TrainingPoints::BlackBackground(CanvasWrapper* canvas) {
+	canvas->SetPosition(Vector2{ canvas_size.X - 170, 20 });
+	LinearColor colors;
+	colors.R = 50;
+	colors.G = 50;
+	colors.B = 50;
+	colors.A = 200;
+	canvas->SetColor(colors);
+	Vector2 size = { 150, 100 };
+
+	canvas->FillBox(size);
+}
+
+void TrainingPoints::TotalPointsText(CanvasWrapper* canvas) {
+	canvas->SetPosition(Vector2{ canvas_size.X - 170, 20 });
+	// defines colors in RGBA 0-255
+	LinearColor colors;
+	colors.A = 255;
+
+	CVarWrapper pointsCvar = cvarManager->getCvar("points");
+	float points = pointsCvar.getFloatValue();
+	if (points < 500) {
+		colors.R = 255;
+		colors.G = 0;
+		colors.B = 0;
+	}
+	else if (points < 1000) {
+		colors.R = 255;
+		colors.G = 255;
+		colors.B = 0;
+	}
+	else {
+		colors.R = 0;
+		colors.G = 255;
+		colors.B = 0;
+	}
+
+	canvas->SetColor(colors);
+	// draws from the last set position
+	// the two floats are text x and y scale
+	// the false turns off the drop shadow
+	canvas->DrawString("Points: " + pointsCvar.getStringValue(), 1.5, 1.5, false);
+}
+
+/*
 // Do ImGui rendering here
 void TrainingPoints::Render()
 {
@@ -63,11 +133,6 @@ std::string TrainingPoints::GetMenuTitle()
 	return menuTitle_;
 }
 
-// Don't call this yourself, BM will call this function with a pointer to the current ImGui context
-void TrainingPoints::SetImGuiContext(uintptr_t ctx)
-{
-	ImGui::SetCurrentContext(reinterpret_cast<ImGuiContext*>(ctx));
-}
 
 // Should events such as mouse clicks/key inputs be blocked so they won't reach the game
 bool TrainingPoints::ShouldBlockInput()
@@ -93,25 +158,8 @@ void TrainingPoints::OnClose()
 	isWindowOpen_ = false;
 }
 
-// in a .cpp file 
-void TrainingPoints::Render(CanvasWrapper canvas) {
-	// defines colors in RGBA 0-255
-	LinearColor colors;
-	colors.R = 255;
-	colors.G = 255;
-	colors.B = 0;
-	colors.A = 255;
-	canvas.SetColor(colors);
-
-	// sets position to top left
-	// x moves to the right
-	// y moves down
-	// bottom right would be 1920, 1080 for 1080p monitors
-	canvas.SetPosition(Vector2F{ 0.0, 0.0 });
-
-	CVarWrapper pointsCvar = cvarManager->getCvar("points");
-	// draws from the last set position
-	// the two floats are text x and y scale
-	// the false turns off the drop shadow
-	canvas.DrawString("Points: " + pointsCvar.getStringValue(), 2.0, 2.0, false);
+void TrainingPoints::ToggleWindow() {
+	cvarManager->executeCommand("togglemenu " + GetMenuName());
 }
+*/
+
