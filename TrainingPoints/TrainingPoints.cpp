@@ -15,9 +15,15 @@ void TrainingPoints::onLoad()
 		ballOnTop();
 		}, "", PERMISSION_ALL);
 
-	cvarManager->registerCvar("point_rate", "1", "How many points per time interval", true, true, 0);
-	cvarManager->registerCvar("points", "0", "How many points you have", true, true, 0);
-	cvarManager->registerCvar("mod_enabled", "1", "Whether or not the mod is enabled", true, true, 0, true, 1);
+	auto point_rate = cvarManager->registerCvar("point_rate", "1", "How many points per time interval", true, true, 0);
+	auto points = cvarManager->registerCvar("points", "0", "How many points you have", true, true, 0);
+	auto session_points = cvarManager->registerCvar("points", "0", "How many points you have", true, true, 0);
+	auto points_window_enabled = cvarManager->registerCvar("points_window_enabled", "1", "Whether or not the mod is enabled", true, true, 0, true, 1);
+
+	gameWrapper->RegisterDrawable([this](CanvasWrapper canvas) {
+		Render(canvas);
+		});
+
 
 	//cvarManager->registerNotifier("my_aweseome_notifier", [&](std::vector<std::string> args) {
 	//	cvarManager->log("Hello notifier!");
@@ -31,7 +37,7 @@ void TrainingPoints::onLoad()
 	//	cvarManager->log("the new value is:" + newCvar.getStringValue());
 	//});
 
-	//cvar2.addOnValueChanged(std::bind(&TrainingPoints::YourPluginMethod, this, _1, _2));
+	points_window_enabled.addOnValueChanged(std::bind(&TrainingPoints::OnOpen, this));
 
 	// enabled decleared in the header
 	//enabled = std::make_shared<bool>(false);
