@@ -29,7 +29,7 @@ void TrainingPoints::onLoad()
 	updatePoints();
 
 	gameWrapper->HookEventPost("Function TAGame.GFxData_Matchmaking_TA.StartMatchmaking", std::bind(&TrainingPoints::StopMatchmaking, this));
-	gameWrapper->HookEvent("Function TAGame.Team_TA.PostBeginPlay", std::bind(&TrainingPoints::RemovePoints, this));
+	gameWrapper->HookEventPost("Function TAGame.Team_TA.PostBeginPlay", std::bind(&TrainingPoints::RemovePoints, this));
 
 	//cvarManager->registerNotifier("my_aweseome_notifier", [&](std::vector<std::string> args) {
 	//	cvarManager->log("Hello notifier!");
@@ -78,6 +78,7 @@ void TrainingPoints::updatePoints() {
 void TrainingPoints::StopMatchmaking() {
 	CVarWrapper pointsCvar = cvarManager->getCvar("points");
 	if (pointsCvar.getIntValue() >= ranked_game_cost) {
+		matchmakingStarted = true;
 		return;
 	}
 
@@ -103,8 +104,14 @@ void TrainingPoints::StartMatchmaking(Playlist playlist, PlaylistCategory catego
 }
 
 void TrainingPoints::RemovePoints() {
-	CVarWrapper pointsCvar = cvarManager->getCvar("points");
-	pointsCvar.setValue(pointsCvar.getIntValue() - ranked_game_cost);
+	if (!gameWrapper->IsInOnlineGame()) {
+		return;
+	}
+	if (matchmakingStarted) {
+		CVarWrapper pointsCvar = cvarManager->getCvar("points");
+		pointsCvar.setValue(pointsCvar.getIntValue() - ranked_game_cost);
+		matchmakingStarted = false;
+	}
 }
 
 /*
