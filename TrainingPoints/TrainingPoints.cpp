@@ -10,14 +10,12 @@ void TrainingPoints::onLoad()
 	_globalCvarManager = cvarManager;
 	cvarManager->log("Plugin loaded!");
 
-	cvarManager->registerNotifier("UpdatePoints", [this](std::vector<std::string> args) {
-		updatePoints();
-		}, "", PERMISSION_ALL);
+	persistent_storage_ = std::make_shared<PersistentStorage>(this, "TrainingPointsStorage", true, true);
 
-	auto point_rate = cvarManager->registerCvar("point_rate", "1", "How many points per time interval", true, true, 0);
-	auto points = cvarManager->registerCvar("points", "0", "How many points you have", true, true, 0);
-	auto session_points = cvarManager->registerCvar("points", "0", "How many points you have", true, true, 0);
-	auto points_window_enabled = cvarManager->registerCvar("points_window_enabled", "1", "Whether or not the mod is enabled", true, true, 0, true, 1);
+	auto point_rate = persistent_storage_->RegisterPersistentCvar("point_rate", "0", "How many points per time interval", true, true, 0);
+	auto points = persistent_storage_->RegisterPersistentCvar("points", "0", "How many points you have", true, true, 0);
+	auto session_points = cvarManager->registerCvar("session_points", "0", "How many points you have this session", true, true, 0);
+	auto points_window_enabled = persistent_storage_->RegisterPersistentCvar("points_window_enabled", "1", "Whether or not the mod is enabled", true, true, 0, true, 1);
 
 	gameWrapper->RegisterDrawable([this](CanvasWrapper canvas) {
 		Render(canvas);
@@ -29,7 +27,8 @@ void TrainingPoints::onLoad()
 	updatePoints();
 
 	gameWrapper->HookEventPost("Function TAGame.GFxData_Matchmaking_TA.StartMatchmaking", std::bind(&TrainingPoints::StopMatchmaking, this));
-	gameWrapper->HookEventPost("Function TAGame.Team_TA.PostBeginPlay", std::bind(&TrainingPoints::RemovePoints, this));
+	gameWrapper->HookEventPost("Function GameEvent_Soccar_TA.Active.StartRound", std::bind(&TrainingPoints::RemovePoints, this));
+
 
 	//cvarManager->registerNotifier("my_aweseome_notifier", [&](std::vector<std::string> args) {
 	//	cvarManager->log("Hello notifier!");
@@ -67,12 +66,17 @@ void TrainingPoints::onUnload()
 
 void TrainingPoints::updatePoints() {
 	if (gameWrapper->IsInCustomTraining() || gameWrapper->IsInFreeplay() || gameWrapper->IsInReplay()) {//(incrementPoints_) {
-		LOG("Updating Points");
-		CVarWrapper pointsCvar = cvarManager->getCvar("points");
 		CVarWrapper pointRateCvar = cvarManager->getCvar("point_rate");
-		pointsCvar.setValue(pointsCvar.getIntValue() + pointRateCvar.getIntValue());
+		addPoints(pointRateCvar.getIntValue());
 	}
 	gameWrapper->SetTimeout(std::bind(&TrainingPoints::updatePoints, this), secondsToUpdate);
+}
+
+void TrainingPoints::addPoints(int difference) {
+	CVarWrapper pointsCvar = cvarManager->getCvar("points");
+	CVarWrapper sessionPointsCvar = cvarManager->getCvar("session_points");
+	pointsCvar.setValue(pointsCvar.getIntValue() + difference);
+	sessionPointsCvar.setValue(sessionPointsCvar.getIntValue() + difference);
 }
 
 void TrainingPoints::StopMatchmaking() {
@@ -108,8 +112,7 @@ void TrainingPoints::RemovePoints() {
 		return;
 	}
 	if (matchmakingStarted) {
-		CVarWrapper pointsCvar = cvarManager->getCvar("points");
-		pointsCvar.setValue(pointsCvar.getIntValue() - ranked_game_cost);
+		addPoints(-ranked_game_cost);
 		matchmakingStarted = false;
 	}
 }

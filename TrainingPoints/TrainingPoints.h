@@ -3,6 +3,7 @@
 #include "bakkesmod/plugin/bakkesmodplugin.h"
 #include "bakkesmod/plugin/pluginwindow.h"
 #include "bakkesmod/plugin/PluginSettingsWindow.h"
+#include "PersistentStorage.h"
 
 #include "version.h"
 constexpr auto plugin_version = stringify(VERSION_MAJOR) "." stringify(VERSION_MINOR) "." stringify(VERSION_PATCH) "." stringify(VERSION_BUILD);
@@ -10,6 +11,7 @@ constexpr auto plugin_version = stringify(VERSION_MAJOR) "." stringify(VERSION_M
 
 class TrainingPoints: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::Plugin::PluginSettingsWindow//, public BakkesMod::Plugin::PluginWindow
 {
+	std::shared_ptr<PersistentStorage> persistent_storage_;
 	//constants
 	int ranked_game_cost = 2000;
 	int secondsToUpdate = 5;
@@ -20,10 +22,11 @@ class TrainingPoints: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMo
 	virtual void onLoad();
 	virtual void onUnload();
 
-	void ballOnTop();
 	// bool incrementPoints_ = false;
 	
 	void updatePoints();
+	void addPoints(int difference);
+
 	void StopMatchmaking();
 	void StartMatchmaking(Playlist playlist, PlaylistCategory category);
 	void RemovePoints();
@@ -59,5 +62,6 @@ class TrainingPoints: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMo
 
 	void BlackBackground(CanvasWrapper* canvas);
 	void TotalPointsText(CanvasWrapper* canvas);
+	void SessionPointsText(CanvasWrapper* canvas);
 };
 

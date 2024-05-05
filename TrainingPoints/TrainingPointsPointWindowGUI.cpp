@@ -11,6 +11,7 @@ void TrainingPoints::Render(CanvasWrapper canvas) {
 
 	BlackBackground(&canvas);
 	TotalPointsText(&canvas);
+	SessionPointsText(&canvas);
 }
 
 void TrainingPoints::BlackBackground(CanvasWrapper* canvas) {
@@ -55,6 +56,24 @@ void TrainingPoints::TotalPointsText(CanvasWrapper* canvas) {
 	// the two floats are text x and y scale
 	// the false turns off the drop shadow
 	canvas->DrawString("Points: " + pointsCvar.getStringValue(), 1.5, 1.5, false);
+}
+
+void TrainingPoints::SessionPointsText(CanvasWrapper* canvas) {
+	canvas->SetPosition(Vector2{ canvas_size.X - 170, 40 });
+	// defines colors in RGBA 0-255
+	LinearColor colors;
+	colors.R = 255;
+	colors.G = 255;
+	colors.B = 255;
+	colors.A = 255;
+
+	CVarWrapper sessionPointsCvar = cvarManager->getCvar("session_points");
+
+	canvas->SetColor(colors);
+	// draws from the last set position
+	// the two floats are text x and y scale
+	// the false turns off the drop shadow
+	canvas->DrawString("Points this session: " + sessionPointsCvar.getStringValue(), 1, 1, false);
 }
 
 /*

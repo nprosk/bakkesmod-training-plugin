@@ -69,5 +69,6 @@ void TrainingPoints::RenderSettingsSettings() {
 	bool check = enabledCvar.getBoolValue();
 	if (ImGui::Checkbox("Enable window that shows points", &check)) {
 		enabledCvar.setValue(check);
+		// ToggleWindow();
 	}
 }

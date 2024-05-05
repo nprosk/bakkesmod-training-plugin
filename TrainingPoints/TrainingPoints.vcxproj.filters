@@ -75,6 +75,9 @@
     <ClCompile Include="TrainingPointsSettingsGUI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PersistentStorage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrainingPoints.h">
@@ -123,6 +126,9 @@
       <Filter>imgui\headers</Filter>
     </ClInclude>
     <ClInclude Include="version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PersistentStorage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
