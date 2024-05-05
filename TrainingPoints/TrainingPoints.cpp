@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "TrainingPoints.h"
 
-
 BAKKESMOD_PLUGIN(TrainingPoints, "TrainingPoints", plugin_version, PLUGINTYPE_FREEPLAY)
 
 std::shared_ptr<CVarManagerWrapper> _globalCvarManager;
@@ -28,6 +27,9 @@ void TrainingPoints::onLoad()
 	// gameWrapper->HookEvent("Function TAGame.FreeplayCommands_TA.HandleSoccarGameDestroyed", std::bind(&TrainingPoints::disableIncrementPoints, this));
 
 	updatePoints();
+
+	gameWrapper->HookEventPost("Function TAGame.GFxData_Matchmaking_TA.StartMatchmaking", std::bind(&TrainingPoints::StopMatchmaking, this));
+	gameWrapper->HookEvent("Function TAGame.Team_TA.PostBeginPlay", std::bind(&TrainingPoints::RemovePoints, this));
 
 	//cvarManager->registerNotifier("my_aweseome_notifier", [&](std::vector<std::string> args) {
 	//	cvarManager->log("Hello notifier!");
@@ -63,24 +65,6 @@ void TrainingPoints::onUnload()
 	cvarManager->log("I was too cool for this world B'(");
 }
 
-void TrainingPoints::ballOnTop() {
-	if (!gameWrapper->IsInFreeplay()) { return; }
-	ServerWrapper server = gameWrapper->GetCurrentGameState();
-	if (!server) { return; }
-
-	BallWrapper ball = server.GetBall();
-	if (!ball) { return; }
-	CarWrapper car = gameWrapper->GetLocalCar();
-	if (!car) { return; }
-
-	Vector carVelocity = car.GetVelocity();
-	ball.SetVelocity(carVelocity);
-
-	Vector carLocation = car.GetLocation();
-	float ballRadius = ball.GetRadius();
-	ball.SetLocation(carLocation + Vector{ 0, 0, ballRadius * 2 });
-}
-
 void TrainingPoints::updatePoints() {
 	if (gameWrapper->IsInCustomTraining() || gameWrapper->IsInFreeplay() || gameWrapper->IsInReplay()) {//(incrementPoints_) {
 		LOG("Updating Points");
@@ -88,7 +72,39 @@ void TrainingPoints::updatePoints() {
 		CVarWrapper pointRateCvar = cvarManager->getCvar("point_rate");
 		pointsCvar.setValue(pointsCvar.getIntValue() + pointRateCvar.getIntValue());
 	}
-	gameWrapper->SetTimeout(std::bind(&TrainingPoints::updatePoints, this), 1);
+	gameWrapper->SetTimeout(std::bind(&TrainingPoints::updatePoints, this), secondsToUpdate);
+}
+
+void TrainingPoints::StopMatchmaking() {
+	CVarWrapper pointsCvar = cvarManager->getCvar("points");
+	if (pointsCvar.getIntValue() >= ranked_game_cost) {
+		return;
+	}
+
+	MatchmakingWrapper mmw = gameWrapper->GetMatchmakingWrapper();
+	if (!mmw) {
+		return;
+	}
+
+	if (mmw.IsSearching()) {
+		mmw.CancelMatchmaking();
+	}
+}
+
+void TrainingPoints::StartMatchmaking(Playlist playlist, PlaylistCategory category) {
+	MatchmakingWrapper mmw = gameWrapper->GetMatchmakingWrapper();
+	if (!mmw) {
+		return;
+	}
+
+	mmw.SetViewTab(category);
+	mmw.SetPlaylistSelection(playlist, true);
+	mmw.StartMatchmaking(category);
+}
+
+void TrainingPoints::RemovePoints() {
+	CVarWrapper pointsCvar = cvarManager->getCvar("points");
+	pointsCvar.setValue(pointsCvar.getIntValue() - ranked_game_cost);
 }
 
 /*

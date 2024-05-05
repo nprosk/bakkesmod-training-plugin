@@ -63,13 +63,16 @@
     <ClCompile Include="imgui\imguivariouscontrols.cpp">
       <Filter>imgui\implementation</Filter>
     </ClCompile>
-    <ClCompile Include="TrainingPointsGUI.cpp">
+    <ClCompile Include="TrainingPointsPointWindowGUI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="fmt\src\format.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="fmt\src\os.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TrainingPointsSettingsGUI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -109,7 +109,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="TrainingPoints.cpp" />
-    <ClCompile Include="TrainingPointsGUI.cpp" />
+    <ClCompile Include="TrainingPointsPointWindowGUI.cpp" />
+    <ClCompile Include="TrainingPointsSettingsGUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imconfig.h" />

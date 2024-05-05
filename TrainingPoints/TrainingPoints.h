@@ -10,6 +10,10 @@ constexpr auto plugin_version = stringify(VERSION_MAJOR) "." stringify(VERSION_M
 
 class TrainingPoints: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::Plugin::PluginSettingsWindow//, public BakkesMod::Plugin::PluginWindow
 {
+	//constants
+	int ranked_game_cost = 2000;
+	int secondsToUpdate = 5;
+	Vector2 canvas_size = { 1920, 1080 };
 
 	//Boilerplate
 	virtual void onLoad();
@@ -17,8 +21,11 @@ class TrainingPoints: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMo
 
 	void ballOnTop();
 	// bool incrementPoints_ = false;
-	int ranked_game_cost = 1000;
+	
 	void updatePoints();
+	void StopMatchmaking();
+	void StartMatchmaking(Playlist playlist, PlaylistCategory category);
+	void RemovePoints();
 	// void enableIncrementPoints();
 	// void disableIncrementPoints();
 
@@ -26,6 +33,10 @@ class TrainingPoints: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMo
 	void RenderSettings() override;
 	std::string GetPluginName() override;
 	virtual void SetImGuiContext(uintptr_t ctx) override;
+
+	void RenderSettingsCasual();
+	void RenderSettingsCompetitive();
+	void RenderSettingsSettings();
 
 	// Inherited via PluginWindow
 	/*
@@ -44,7 +55,6 @@ class TrainingPoints: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMo
 	*/
 
 	void Render(CanvasWrapper canvas);
-	Vector2 canvas_size = { 1920, 1080 };
 
 	void BlackBackground(CanvasWrapper* canvas);
 	void TotalPointsText(CanvasWrapper* canvas);
