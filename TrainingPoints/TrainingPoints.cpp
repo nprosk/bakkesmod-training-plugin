@@ -14,7 +14,7 @@ void TrainingPoints::onLoad()
 
 	auto point_rate = persistent_storage_->RegisterPersistentCvar("point_rate", "0", "How many points per time interval", true, true, 0);
 	auto points = persistent_storage_->RegisterPersistentCvar("points", "0", "How many points you have", true, true, 0);
-	auto session_points = cvarManager->registerCvar("session_points", "0", "How many points you have this session", true, true, 0);
+	auto session_points = cvarManager->registerCvar("session_points", "0", "How many points you have this session", true);
 	auto points_window_enabled = persistent_storage_->RegisterPersistentCvar("points_window_enabled", "1", "Whether or not the mod is enabled", true, true, 0, true, 1);
 
 	gameWrapper->RegisterDrawable([this](CanvasWrapper canvas) {
