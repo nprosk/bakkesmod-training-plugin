@@ -16,6 +16,7 @@ void TrainingPoints::onLoad()
 	auto points = persistent_storage_->RegisterPersistentCvar("points", "0", "How many points you have", true, true, 0);
 	auto session_points = cvarManager->registerCvar("session_points", "0", "How many points you have this session", true);
 	auto points_window_enabled = persistent_storage_->RegisterPersistentCvar("points_window_enabled", "1", "Whether or not the mod is enabled", true, true, 0, true, 1);
+	auto ranked_game_cost = persistent_storage_->RegisterPersistentCvar("ranked_game_cost", "2000", "the point cost of queueing a ranked game", true);
 
 	gameWrapper->RegisterDrawable([this](CanvasWrapper canvas) {
 		Render(canvas);
@@ -81,7 +82,8 @@ void TrainingPoints::addPoints(int difference) {
 
 void TrainingPoints::StopMatchmaking() {
 	CVarWrapper pointsCvar = cvarManager->getCvar("points");
-	if (pointsCvar.getIntValue() >= ranked_game_cost) {
+	CVarWrapper rankedGameCostCvar = cvarManager->getCvar("ranked_game_cost");
+	if (pointsCvar.getIntValue() >= rankedGameCostCvar.getIntValue()) {
 		matchmakingStarted = true;
 		return;
 	}
@@ -111,8 +113,9 @@ void TrainingPoints::RemovePoints() {
 	if (!gameWrapper->IsInOnlineGame()) {
 		return;
 	}
+	CVarWrapper rankedGameCostCvar = cvarManager->getCvar("ranked_game_cost");
 	if (matchmakingStarted) {
-		addPoints(-ranked_game_cost);
+		addPoints(-rankedGameCostCvar.getIntValue());
 		matchmakingStarted = false;
 	}
 }

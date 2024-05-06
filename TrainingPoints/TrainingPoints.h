@@ -13,7 +13,6 @@ class TrainingPoints: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMo
 {
 	std::shared_ptr<PersistentStorage> persistent_storage_;
 	//constants
-	int ranked_game_cost = 2000;
 	int secondsToUpdate = 5;
 	Vector2 canvas_size = { 1920, 1080 };
 	bool matchmakingStarted = false;

@@ -35,12 +35,14 @@ void TrainingPoints::TotalPointsText(CanvasWrapper* canvas) {
 
 	CVarWrapper pointsCvar = cvarManager->getCvar("points");
 	float points = pointsCvar.getFloatValue();
-	if (points < 500) {
+	CVarWrapper rankedGameCostCvar = cvarManager->getCvar("ranked_game_cost");
+	int ranked_game_cost = rankedGameCostCvar.getIntValue();
+	if (points < ranked_game_cost / 2) {
 		colors.R = 255;
 		colors.G = 0;
 		colors.B = 0;
 	}
-	else if (points < 1000) {
+	else if (points < ranked_game_cost) {
 		colors.R = 255;
 		colors.G = 255;
 		colors.B = 0;
@@ -55,11 +57,14 @@ void TrainingPoints::TotalPointsText(CanvasWrapper* canvas) {
 	// draws from the last set position
 	// the two floats are text x and y scale
 	// the false turns off the drop shadow
-	canvas->DrawString("Points: " + pointsCvar.getStringValue(), 1.5, 1.5, false);
+	std::string text = "Points: " + pointsCvar.getStringValue();
+	auto textSize = canvas->GetStringSize(text);
+	float formattedTextSize = 150.0 / textSize.X;
+	canvas->DrawString("Points: " + pointsCvar.getStringValue(), formattedTextSize, formattedTextSize, false);
 }
 
 void TrainingPoints::SessionPointsText(CanvasWrapper* canvas) {
-	canvas->SetPosition(Vector2{ canvas_size.X - 170, 40 });
+	canvas->SetPosition(Vector2{ canvas_size.X - 170, 50 });
 	// defines colors in RGBA 0-255
 	LinearColor colors;
 	colors.R = 255;
@@ -73,7 +78,10 @@ void TrainingPoints::SessionPointsText(CanvasWrapper* canvas) {
 	// draws from the last set position
 	// the two floats are text x and y scale
 	// the false turns off the drop shadow
-	canvas->DrawString("Points this session: " + sessionPointsCvar.getStringValue(), 1, 1, false);
+	std::string text = "Points this session: " + sessionPointsCvar.getStringValue();
+	auto textSize = canvas->GetStringSize(text);
+	float formattedTextSize = 150.0 / textSize.X;
+	canvas->DrawString(text, formattedTextSize, formattedTextSize, false);
 }
 
 /*

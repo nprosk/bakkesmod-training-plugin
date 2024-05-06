@@ -30,8 +30,9 @@ void TrainingPoints::RenderSettingsCasual() {
 	ImGui::TextUnformatted("Queue Casual");
 	if (ImGui::Button("Standard")) {
 		CVarWrapper pointsCvar = cvarManager->getCvar("points");
-		if (pointsCvar.getIntValue() >= ranked_game_cost) {
-			pointsCvar.setValue(pointsCvar.getIntValue() - ranked_game_cost);
+		CVarWrapper rankedGameCostCvar = cvarManager->getCvar("ranked_game_cost");
+		if (pointsCvar.getIntValue() >= rankedGameCostCvar.getIntValue()) {
+			pointsCvar.setValue(pointsCvar.getIntValue() - rankedGameCostCvar.getIntValue());
 			StartMatchmaking(Playlist::CASUAL_STANDARD, PlaylistCategory::CASUAL);
 		}
 	}
@@ -60,7 +61,8 @@ void TrainingPoints::RenderSettingsSettings() {
 		ImGui::SetTooltip(hoverText.c_str());
 	}
 
-
+	CVarWrapper rankedGameCostCvar = cvarManager->getCvar("ranked_game_cost");
+	int ranked_game_cost = rankedGameCostCvar.getIntValue();
 	float mins_per_ranked_game = (ranked_game_cost * secondsToUpdate / (rateCvar.getFloatValue() * 60.0));
 	std::string time_str = "It takes " + std::to_string(mins_per_ranked_game) + " minutes to get enough points to queue a ranked game";
 	ImGui::TextUnformatted(time_str.c_str());
@@ -70,5 +72,11 @@ void TrainingPoints::RenderSettingsSettings() {
 	if (ImGui::Checkbox("Enable window that shows points", &check)) {
 		enabledCvar.setValue(check);
 		// ToggleWindow();
+	}
+
+	
+	if (!rankedGameCostCvar) { return; }
+	if (ImGui::SliderInt("Ranked Game Cost", &ranked_game_cost, 1000, 3000)) {
+		rankedGameCostCvar.setValue(ranked_game_cost);
 	}
 }
