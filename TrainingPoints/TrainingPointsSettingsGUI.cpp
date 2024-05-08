@@ -29,12 +29,7 @@ void TrainingPoints::SetImGuiContext(uintptr_t ctx)
 void TrainingPoints::RenderSettingsCasual() {
 	ImGui::TextUnformatted("Queue Casual");
 	if (ImGui::Button("Standard")) {
-		CVarWrapper pointsCvar = cvarManager->getCvar("points");
-		CVarWrapper rankedGameCostCvar = cvarManager->getCvar("ranked_game_cost");
-		if (pointsCvar.getIntValue() >= rankedGameCostCvar.getIntValue()) {
-			pointsCvar.setValue(pointsCvar.getIntValue() - rankedGameCostCvar.getIntValue());
-			StartMatchmaking(Playlist::CASUAL_STANDARD, PlaylistCategory::CASUAL);
-		}
+		
 	}
 	
 }

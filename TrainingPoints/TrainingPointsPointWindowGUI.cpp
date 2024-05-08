@@ -72,13 +72,11 @@ void TrainingPoints::SessionPointsText(CanvasWrapper* canvas) {
 	colors.B = 255;
 	colors.A = 255;
 
-	CVarWrapper sessionPointsCvar = cvarManager->getCvar("session_points");
-
 	canvas->SetColor(colors);
 	// draws from the last set position
 	// the two floats are text x and y scale
 	// the false turns off the drop shadow
-	std::string text = "Points this session: " + sessionPointsCvar.getStringValue();
+	std::string text = "Points this session: " + std::to_string(sessionPoints);
 	auto textSize = canvas->GetStringSize(text);
 	float formattedTextSize = 150.0 / textSize.X;
 	canvas->DrawString(text, formattedTextSize, formattedTextSize, false);

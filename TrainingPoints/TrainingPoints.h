@@ -11,32 +11,35 @@ constexpr auto plugin_version = stringify(VERSION_MAJOR) "." stringify(VERSION_M
 
 class TrainingPoints: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMod::Plugin::PluginSettingsWindow//, public BakkesMod::Plugin::PluginWindow
 {
-	std::shared_ptr<PersistentStorage> persistent_storage_;
 	//constants
 	int secondsToUpdate = 5;
 	Vector2 canvas_size = { 1920, 1080 };
+	std::shared_ptr<PersistentStorage> persistent_storage_;
 	bool matchmakingStarted = false;
+	int sessionPoints, sessionWins, sessionGames, currentWinstreak = 0;
+	int casualGamesLeft = 5;
+	// int currentWinstreak
 
 	//Boilerplate
 	virtual void onLoad();
 	virtual void onUnload();
-
-	// bool incrementPoints_ = false;
 	
+	// updates points with point rate when in training
 	void updatePoints();
+	// modifies points and session points by given amount
 	void addPoints(int difference);
-
-	void StopMatchmaking();
-	void StartMatchmaking(Playlist playlist, PlaylistCategory category);
+	// removes points with ranked game cost
 	void RemovePoints();
-	// void enableIncrementPoints();
-	// void disableIncrementPoints();
+
+	// checks if user is allowed to do this matchmaking
+	void CheckValidMatchmaking();
 
 	// Inherited via PluginSettingsWindow
 	void RenderSettings() override;
 	std::string GetPluginName() override;
 	virtual void SetImGuiContext(uintptr_t ctx) override;
 
+	// helpers for plugin settings
 	void RenderSettingsCasual();
 	void RenderSettingsCompetitive();
 	void RenderSettingsSettings();
@@ -57,8 +60,10 @@ class TrainingPoints: public BakkesMod::Plugin::BakkesModPlugin, public BakkesMo
 	void ToggleWindow();
 	*/
 
+	// render to canvas
 	void Render(CanvasWrapper canvas);
 
+	// helpers for rendering to canvas
 	void BlackBackground(CanvasWrapper* canvas);
 	void TotalPointsText(CanvasWrapper* canvas);
 	void SessionPointsText(CanvasWrapper* canvas);
